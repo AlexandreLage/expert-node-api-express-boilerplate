@@ -1,6 +1,10 @@
 // geocode controller routes
 import express, { Request, Response } from 'express'
+import { checkSchema, validationResult } from "express-validator"
+import addressesSchema from "../schemas/addressesSchema"
+import Address from "../models/address"
 var router = express.Router()
+import distanceFactory from "../factory/distanceFactory"
 
 // get /api/geocode/
 router.get('/', (_, res) => {
@@ -23,10 +27,21 @@ router.delete('/', (_, res) => {
 })
 
 // post /api/geocode/calculate/distance
+type addressesBody = { addresses: [Address] }
 router.post(
   '/calculate/distance',
-   (req: Request<any, any, any>, res: Response) => {
-    res.json('OK.')}    
+  checkSchema(addressesSchema),
+  async (req: Request<any, any, addressesBody>, res: Response) => {
+    // check schema validations
+    const schemaErrors = validationResult(req)
+    if (!schemaErrors.isEmpty()) {
+      return res.status(403).send(schemaErrors.array())
+    } else {
+      //Run euclidian distancing helper
+      const distances = "OK"
+      return res.json(distances)
+    }
+  }
 )
 
 module.exports = router
